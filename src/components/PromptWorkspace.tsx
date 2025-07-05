@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -72,7 +71,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
     try {
       const content = await generateContent(selectedAgent, prompt);
       setGeneratedContent(content);
-      
+
       setLoadingText('Analyzing generated content...');
       const postAnalysisResult = await postProcessText(content.generated_text);
       setPostAnalysis(postAnalysisResult);
@@ -103,7 +102,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
     const steps: WorkflowStep[] = ['input', 'pre-analysis', 'generation', 'post-analysis'];
     const currentIndex = steps.indexOf(currentStep);
     const stepIndex = steps.indexOf(step);
-    
+
     if (stepIndex < currentIndex) return 'completed';
     if (stepIndex === currentIndex) return 'current';
     return 'pending';
@@ -280,7 +279,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
               text={prompt}
               showBias={false}
             />
-            
+
             <div className="actions">
               <motion.button
                 className="action-button edit-button"
@@ -324,7 +323,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
               text={generatedContent.generated_text}
               showBias={true}
             />
-            
+
             <div className="actions">
               <motion.button
                 className="action-button edit-button"
