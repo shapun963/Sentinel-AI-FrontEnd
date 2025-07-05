@@ -291,6 +291,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
               title="Pre-Processing Security Analysis"
               text={prompt}
               showBias={false}
+              useTypewriter={true}
             />
 
             <div className="actions">
@@ -342,6 +343,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
               title="Post-Processing Content Analysis"
               text={generatedContent.generated_text}
               showBias={true}
+              useTypewriter={true}
             />
 
             <div className="actions">

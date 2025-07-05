@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import HighlightedText from './HighlightedText';
 import SeverityBar from './SeverityBar';
+import TypewriterText from './TypewriterText';
 import { PreProcessResponse, PostProcessResponse, IndexSpan } from '../api';
 
 interface AnalysisReportProps {
@@ -10,6 +10,7 @@ interface AnalysisReportProps {
   title: string;
   text?: string;
   showBias?: boolean;
+  useTypewriter?: boolean;
 }
 
 interface BiasMetric {
@@ -22,8 +23,21 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
   analysis, 
   title, 
   text, 
-  showBias = false 
+  showBias = false,
+  useTypewriter = false
 }) => {
+  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [showContent, setShowContent] = useState(!useTypewriter);
+  const [typewriterComplete, setTypewriterComplete] = useState(false);
+
+  // Calculate dynamic speed based on content length
+  const getTypewriterSpeed = () => {
+    const totalContent = JSON.stringify(analysis).length;
+    const baseSpeed = 2000; // 2 seconds target
+    return Math.max(10, baseSpeed / totalContent);
+  };
+
   const getRiskColor = (riskLevel: string): string => {
     switch (riskLevel) {
       case 'low': return '#059669';
@@ -36,15 +50,15 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
 
   const getAllIndices = (): IndexSpan[] => {
     const allIndices: IndexSpan[] = [];
-    
+
     if (analysis.pii?.indices) {
       allIndices.push(...analysis.pii.indices);
     }
-    
+
     if ('promptInjection' in analysis && analysis.promptInjection?.indices) {
       allIndices.push(...analysis.promptInjection.indices);
     }
-    
+
     return allIndices;
   };
 
@@ -56,6 +70,8 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
     { label: 'Hate Speech', value: analysis.bias.hate_speech_score, color: '#991b1b' }
   ] : [];
 
+  const titleContent = `${title} - Risk Level: ${analysis.risk_level.toUpperCase()}`;
+
   return (
     <motion.div 
       className="analysis-report"
@@ -63,30 +79,44 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="report-header">
-        <motion.h2 
-          className="report-title"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {title}
-        </motion.h2>
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <span className={`risk-level risk-${analysis.risk_level}`}>
-            {analysis.risk_level} Risk
-          </span>
-        </motion.div>
-      </div>
+      {useTypewriter ? (
+        <div className="report-header">
+          <TypewriterText
+            text={titleContent}
+            speed={getTypewriterSpeed()}
+            onComplete={() => {
+              setTimeout(() => setShowContent(true), 300);
+              setTimeout(() => setTypewriterComplete(true), 500);
+            }}
+            className="typewriter-title"
+          />
+        </div>
+      ) : (
+        <div className="report-header">
+          <motion.h2 
+            className="report-title"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            {title}
+          </motion.h2>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <span className={`risk-level risk-${analysis.risk_level}`}>
+              {analysis.risk_level} Risk
+            </span>
+          </motion.div>
+        </div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : 20 }}
         transition={{ delay: 0.3 }}
       >
         <SeverityBar 
@@ -100,7 +130,7 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
       {text && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : 20 }}
           transition={{ delay: 0.4 }}
         >
           <HighlightedText 
@@ -114,7 +144,7 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
         <motion.div 
           className="bias-section"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : 20 }}
           transition={{ delay: 0.5 }}
         >
           <h3 className="bias-title">Bias Analysis</h3>
@@ -123,7 +153,7 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
               <motion.div
                 key={metric.label}
                 initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                animate={{ opacity: showContent ? 1 : 0, x: showContent ? 0 : -20 }}
                 transition={{ delay: 0.6 + index * 0.05 }}
               >
                 <SeverityBar 
@@ -143,7 +173,7 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
         <motion.div 
           className="explanations"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : 20 }}
           transition={{ delay: 0.7 }}
         >
           <h4>Analysis Summary</h4>
@@ -152,7 +182,7 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({
               <motion.li
                 key={index}
                 initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
+                animate={{ opacity: showContent ? 1 : 0, x: showContent ? 0 : -10 }}
                 transition={{ delay: 0.8 + index * 0.05 }}
               >
                 {explanation}
