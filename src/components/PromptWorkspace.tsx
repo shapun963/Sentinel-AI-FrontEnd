@@ -32,6 +32,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('input');
   const [showTypewriter, setShowTypewriter] = useState(false);
   const [typewriterComplete, setTypewriterComplete] = useState(false);
+  const [showHighlights, setShowHighlights] = useState(false);
 
   useEffect(() => {
     loadAgents();
@@ -84,7 +85,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
       setTimeout(() => {
         setCurrentStep('post-analysis');
         setLoading(false);
-      }, 2000); // Wait 2 seconds for typewriter effect
+      }, 1000); // Wait 1 second for typewriter effect
     } catch (error) {
       console.error('Generation or post-processing failed:', error);
     } finally {
@@ -107,6 +108,7 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
     setPostAnalysis(null);
     setShowTypewriter(false);
     setTypewriterComplete(false);
+    setShowHighlights(false);
   };
 
   const getStepStatus = (step: WorkflowStep): 'completed' | 'current' | 'pending' => {
@@ -322,19 +324,17 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
           >
             <div className="generated-content">
               <h3 className="generated-title">Generated Content</h3>
-              {showTypewriter ? (
-                <TypewriterText
-                  text={generatedContent.generated_text}
-                  speed={20}
-                  onComplete={() => setTypewriterComplete(true)}
-                  className="generated-text-content"
-                />
-              ) : (
-                <HighlightedText
-                  text={generatedContent.generated_text}
-                  showBias={true}
-                />
-              )}
+              <TypewriterText
+                text={generatedContent.generated_text}
+                speed={20}
+                onComplete={() => {
+                  setTypewriterComplete(true);
+                  setTimeout(() => setShowHighlights(true), 500);
+                }}
+                className="generated-text-content"
+                highlightIndices={postAnalysis?.pii?.indices || []}
+                showHighlights={showHighlights}
+              />
             </div>
 
             <AnalysisReport 
