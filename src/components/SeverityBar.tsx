@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -9,21 +10,27 @@ interface SeverityBarProps {
   format?: 'score' | 'percentage';
 }
 
-const SeverityBar: React.FC<SeverityBarProps> = ({ label, value, max = 10, color = '#00ff88', format = 'score' }) => {
+const SeverityBar: React.FC<SeverityBarProps> = ({ 
+  label, 
+  value, 
+  max = 10, 
+  color = '#2563eb', 
+  format = 'score' 
+}) => {
   const percentage = (value / max) * 100;
   
-  const formatValue = () => {
+  const formatValue = (): string => {
     if (format === 'percentage') {
       return `${Math.round(value * 100)}%`;
     }
     return `${value}/${max}`;
   };
 
-  const getGradientColor = () => {
-    if (percentage <= 30) return '#00ff88';
-    if (percentage <= 60) return '#ffc107';
-    if (percentage <= 80) return '#ff5722';
-    return '#f44336';
+  const getGradientColor = (): string => {
+    if (percentage <= 30) return '#059669';
+    if (percentage <= 60) return '#d97706';
+    if (percentage <= 80) return '#ea580c';
+    return '#dc2626';
   };
 
   return (
@@ -39,11 +46,11 @@ const SeverityBar: React.FC<SeverityBarProps> = ({ label, value, max = 10, color
             background: `linear-gradient(90deg, ${getGradientColor()}, ${color})`
           }}
           initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
+          animate={{ width: `${Math.min(percentage, 100)}%` }}
           transition={{ 
-            duration: 1,
+            duration: 0.8,
             ease: "easeOut",
-            delay: 0.2
+            delay: 0.1
           }}
         />
       </div>

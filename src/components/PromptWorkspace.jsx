@@ -1,20 +1,41 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAgents, preProcessText, generateContent, postProcessText } from '../api.js';
+import { getAgents, preProcessText, generateContent, postProcessText } from '../api';
 import AnalysisReport from './AnalysisReport';
 import HighlightedText from './HighlightedText';
 
-const PromptWorkspace = ({ onBack }) => {
-  const [agents, setAgents] = useState([]);
-  const [selectedAgent, setSelectedAgent] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState('');
-  const [preAnalysis, setPreAnalysis] = useState(null);
-  const [generatedContent, setGeneratedContent] = useState(null);
-  const [postAnalysis, setPostAnalysis] = useState(null);
-  const [currentStep, setCurrentStep] = useState('input'); // input, pre-analysis, generation, post-analysis
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface Analysis {
+  risk_level: string;
+  pii: {
+    [key: string]: any; // Adjust the type based on actual pii properties
+  };
+  // Add other properties as needed based on actual analysis data
+}
+
+interface GeneratedContent {
+  generated_text: string;
+}
+
+interface PromptWorkspaceProps {
+  onBack: () => void;
+}
+
+const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<string>('');
+  const [prompt, setPrompt] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingText, setLoadingText] = useState<string>('');
+  const [preAnalysis, setPreAnalysis] = useState<Analysis | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
+  const [postAnalysis, setPostAnalysis] = useState<Analysis | null>(null);
+  const [currentStep, setCurrentStep] = useState<string>('input'); // input, pre-analysis, generation, post-analysis
 
   useEffect(() => {
     loadAgents();

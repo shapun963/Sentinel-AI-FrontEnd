@@ -1,67 +1,74 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import HighlightedText from './HighlightedText';
 import SeverityBar from './SeverityBar';
+import { PreProcessResponse, PostProcessResponse, IndexSpan } from '../api';
 
 interface AnalysisReportProps {
-  analysis: any; // Replace 'any' with a more specific type if possible
+  analysis: PreProcessResponse | PostProcessResponse;
   title: string;
-  text: string;
+  text?: string;
   showBias?: boolean;
 }
 
-const AnalysisReport: React.FC<AnalysisReportProps> = ({ analysis, title, text, showBias = false }) => {
+interface BiasMetric {
+  label: string;
+  value: number;
+  color: string;
+}
+
+const AnalysisReport: React.FC<AnalysisReportProps> = ({ 
+  analysis, 
+  title, 
+  text, 
+  showBias = false 
+}) => {
   const getRiskColor = (riskLevel: string): string => {
     switch (riskLevel) {
-      case 'low': return '#00ff88';
-      case 'medium': return '#ffc107';
-      case 'high': return '#ff5722';
-      case 'critical': return '#f44336';
-      default: return '#a0a0a0';
+      case 'low': return '#059669';
+      case 'medium': return '#d97706';
+      case 'high': return '#ea580c';
+      case 'critical': return '#dc2626';
+      default: return '#6b7280';
     }
   };
 
-  const getAllIndices = (): number[] => {
-    const allIndices: number[] = [];
+  const getAllIndices = (): IndexSpan[] => {
+    const allIndices: IndexSpan[] = [];
     
     if (analysis.pii?.indices) {
       allIndices.push(...analysis.pii.indices);
     }
     
-    if (analysis.promptInjection?.indices) {
+    if ('promptInjection' in analysis && analysis.promptInjection?.indices) {
       allIndices.push(...analysis.promptInjection.indices);
     }
     
     return allIndices;
   };
 
-  interface BiasMetric {
-    label: string;
-    value: number;
-    color: string;
-  }
-
-  const biasMetrics: BiasMetric[] = showBias && analysis.bias ? [
-    { label: 'Racial Bias', value: analysis.bias.racial_score, color: '#ff0088' },
-    { label: 'Gender Bias', value: analysis.bias.gender_score, color: '#ff5722' },
-    { label: 'Age Bias', value: analysis.bias.age_score, color: '#ff9800' },
-    { label: 'Religious Bias', value: analysis.bias.religious_score, color: '#9c27b0' },
-    { label: 'Hate Speech', value: analysis.bias.hate_speech_score, color: '#f44336' }
+  const biasMetrics: BiasMetric[] = showBias && 'bias' in analysis && analysis.bias ? [
+    { label: 'Racial Bias', value: analysis.bias.racial_score, color: '#dc2626' },
+    { label: 'Gender Bias', value: analysis.bias.gender_score, color: '#ea580c' },
+    { label: 'Age Bias', value: analysis.bias.age_score, color: '#d97706' },
+    { label: 'Religious Bias', value: analysis.bias.religious_score, color: '#7c2d12' },
+    { label: 'Hate Speech', value: analysis.bias.hate_speech_score, color: '#991b1b' }
   ] : [];
 
   return (
     <motion.div 
       className="analysis-report"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
     >
       <div className="report-header">
         <motion.h2 
           className="report-title"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
         >
           {title}
         </motion.h2>
@@ -69,14 +76,9 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({ analysis, title, text, 
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
         >
-          <span 
-            className={`risk-level risk-${analysis.risk_level}`}
-            style={{ 
-              boxShadow: `0 0 20px ${getRiskColor(analysis.risk_level)}40` 
-            }}
-          >
+          <span className={`risk-level risk-${analysis.risk_level}`}>
             {analysis.risk_level} Risk
           </span>
         </motion.div>
@@ -85,10 +87,10 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({ analysis, title, text, 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.3 }}
       >
         <SeverityBar 
-          label="Overall Severity"
+          label="Overall Severity Score"
           value={analysis.overall_severity_score}
           max={10}
           color={getRiskColor(analysis.risk_level)}
@@ -99,7 +101,7 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({ analysis, title, text, 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.4 }}
         >
           <HighlightedText 
             text={text}
@@ -113,16 +115,16 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({ analysis, title, text, 
           className="bias-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.5 }}
         >
           <h3 className="bias-title">Bias Analysis</h3>
           <div className="bias-bars">
             {biasMetrics.map((metric, index) => (
               <motion.div
                 key={metric.label}
-                initial={{ opacity: 0, x: -50 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 + index * 0.1 }}
+                transition={{ delay: 0.6 + index * 0.05 }}
               >
                 <SeverityBar 
                   label={metric.label}
@@ -142,16 +144,16 @@ const AnalysisReport: React.FC<AnalysisReportProps> = ({ analysis, title, text, 
           className="explanations"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.7 }}
         >
-          <h4>Summary Explanations</h4>
+          <h4>Analysis Summary</h4>
           <ul>
-            {analysis.summary_explanations.map((explanation: string, index: number) => (
+            {analysis.summary_explanations.map((explanation, index) => (
               <motion.li
                 key={index}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.9 + index * 0.1 }}
+                transition={{ delay: 0.8 + index * 0.05 }}
               >
                 {explanation}
               </motion.li>

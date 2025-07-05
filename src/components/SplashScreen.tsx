@@ -1,37 +1,32 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
-
-interface Feature {
-  icon: string;
-  title: string;
-  description: string;
-}
 
 interface SplashScreenProps {
   onEnter: () => void;
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
-  const features: Feature[] = [
+  const features = [
     {
       icon: '🛡️',
       title: 'Pre-Processing Shield',
-      description: 'Detects PII and prompt injections before AI processing'
+      description: 'Advanced detection of PII and prompt injections before AI processing'
     },
     {
       icon: '🤖',
-      title: 'AI Agent Integration',
-      description: 'Connect with multiple AI agents securely'
+      title: 'Multi-Agent Integration',
+      description: 'Seamlessly connect with multiple AI agents while maintaining security'
     },
     {
       icon: '🔍',
-      title: 'Post-Processing Analysis',
-      description: 'Analyzes generated content for bias and data leakage'
+      title: 'Content Analysis',
+      description: 'Comprehensive analysis of generated content for bias and data leakage'
     },
     {
       icon: '📊',
       title: 'Risk Assessment',
-      description: 'Real-time severity scoring and risk level determination'
+      description: 'Real-time severity scoring and intelligent risk level determination'
     }
   ];
 
@@ -40,20 +35,21 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3
+        staggerChildren: 0.1,
+        delayChildren: 0.2
       }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 50, opacity: 0 },
+    hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
         type: "spring",
-        stiffness: 100
+        stiffness: 100,
+        damping: 12
       }
     }
   };
@@ -69,14 +65,14 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
         className="splash-title"
         variants={itemVariants}
       >
-        SENTINEL AI
+        Sentinel AI
       </motion.h1>
       
       <motion.p 
         className="splash-subtitle"
         variants={itemVariants}
       >
-        Advanced AI Security & Bias Detection Platform
+        Enterprise-grade AI security and bias detection platform for safe AI interactions
       </motion.p>
       
       <motion.div 
@@ -88,10 +84,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
             key={index}
             className="feature-card"
             whileHover={{ 
-              scale: 1.05,
-              transition: { type: "spring", stiffness: 300 }
+              y: -4,
+              transition: { type: "spring", stiffness: 300, damping: 20 }
             }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="feature-icon">{feature.icon}</div>
             <h3>{feature.title}</h3>
@@ -104,13 +100,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
         className="enter-button"
         variants={itemVariants}
         whileHover={{ 
-          scale: 1.05,
-          boxShadow: "0 10px 30px rgba(0, 255, 136, 0.4)"
+          y: -2,
+          transition: { type: "spring", stiffness: 300, damping: 20 }
         }}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.98 }}
         onClick={onEnter}
       >
-        Enter Sentinel
+        Access Platform
       </motion.button>
     </motion.div>
   );

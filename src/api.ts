@@ -1,48 +1,49 @@
-import { USE_MOCK_DATA, SHIELD_SERVER_URL, AGENT_SERVER_URL } from './config.js';
 
-// Define interfaces for the agent data
-interface Agent {
+import { USE_MOCK_DATA, SHIELD_SERVER_URL, AGENT_SERVER_URL } from './config';
+
+// Type definitions matching the API contract
+export interface AgentInfo {
   id: string;
   name: string;
   description: string;
   endpoint: string;
 }
 
-interface PIIIndex {
+export interface IndexSpan {
   start: number;
   end: number;
-  type: string;
-  piiType: string | null;
+  type: 'pii' | 'injection';
+  piiType?: string;
   severity_score: number;
   explanation: string;
 }
 
-interface PreProcessResponse {
+export interface PreProcessResponse {
   pii: {
     detected: boolean;
-    indices: PIIIndex[];
+    indices: IndexSpan[];
   };
   promptInjection: {
     detected: boolean;
-    indices: PIIIndex[];
+    indices: IndexSpan[];
   };
   overall_severity_score: number;
-  risk_level: string;
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
   summary_explanations: string[];
 }
 
-interface GeneratedContent {
+export interface GeneratedContentResponse {
   generated_text: string;
 }
 
-interface PostProcessResponse {
+export interface PostProcessResponse {
   pii: {
     detected: boolean;
-    indices: PIIIndex[];
+    indices: IndexSpan[];
   };
   bias: {
     detected: boolean;
-    indices: any[]; // Specify type if structure is known
+    indices: IndexSpan[];
     racial_score: number;
     gender_score: number;
     age_score: number;
@@ -50,13 +51,12 @@ interface PostProcessResponse {
     hate_speech_score: number;
   };
   overall_severity_score: number;
-  risk_level: string;
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
   summary_explanations: string[];
 }
 
-
 // Mock data that matches the API contract exactly
-const mockAgents: Agent[] = [
+const mockAgents: AgentInfo[] = [
   {
     id: "gpt-4",
     name: "GPT-4 Advanced",
@@ -106,7 +106,6 @@ const mockPreProcessResponse: PreProcessResponse = {
         start: 100,
         end: 130,
         type: "injection",
-        piiType: null,
         severity_score: 8,
         explanation: "Potential prompt injection detected: attempting to override system instructions"
       }
@@ -121,7 +120,7 @@ const mockPreProcessResponse: PreProcessResponse = {
   ]
 };
 
-const mockGeneratedContent: GeneratedContent = {
+const mockGeneratedContent: GeneratedContentResponse = {
   generated_text: "Based on your request, here's a comprehensive analysis of cybersecurity trends. However, I cannot process personal information like john.doe@company.com or provide specific details about social security number 123-45-6789. This response may contain inherent biases regarding gender roles in technology and could perpetuate stereotypes about age-based technical competency."
 };
 
@@ -166,7 +165,7 @@ const mockPostProcessResponse: PostProcessResponse = {
 };
 
 // API functions
-export const getAgents = async (): Promise<Agent[]> => {
+export const getAgents = async (): Promise<AgentInfo[]> => {
   if (USE_MOCK_DATA) {
     return new Promise(resolve => setTimeout(() => resolve(mockAgents), 800));
   }
@@ -188,7 +187,7 @@ export const preProcessText = async (text: string): Promise<PreProcessResponse> 
   return response.json();
 };
 
-export const generateContent = async (agentId: string, prompt: string): Promise<GeneratedContent> => {
+export const generateContent = async (agentId: string, prompt: string): Promise<GeneratedContentResponse> => {
   if (USE_MOCK_DATA) {
     return new Promise(resolve => setTimeout(() => resolve(mockGeneratedContent), 2500));
   }

@@ -1,25 +1,23 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-interface Highlight {
-  start: number;
-  end: number;
-  type: string;
-  piiType?: string;
-  severity_score?: number;
-  explanation?: string;
-}
+import { IndexSpan } from '../api';
 
 interface HighlightedTextProps {
   text: string;
-  indices?: Highlight[];
+  indices?: IndexSpan[];
+}
+
+interface TooltipPosition {
+  x: number;
+  y: number;
 }
 
 const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [tooltipPosition, setTooltipPosition] = useState<TooltipPosition>({ x: 0, y: 0 });
 
-  const getHighlightClass = (type: string) => {
+  const getHighlightClass = (type: string): string => {
     switch (type) {
       case 'pii': return 'highlight-pii';
       case 'injection': return 'highlight-injection';
@@ -27,7 +25,7 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] })
     }
   };
 
-  const handleMouseEnter = (index: number, event: React.MouseEvent<HTMLSpanElement>) => {
+  const handleMouseEnter = (index: number, event: React.MouseEvent): void => {
     setHoveredIndex(index);
     setTooltipPosition({
       x: event.clientX,
@@ -35,28 +33,24 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] })
     });
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (): void => {
     setHoveredIndex(null);
   };
 
-  const renderHighlightedText = () => {
+  const renderHighlightedText = (): (string | JSX.Element)[] => {
     if (!indices || indices.length === 0) {
-      return <span>{text}</span>;
+      return [text];
     }
 
     // Sort indices by start position
     const sortedIndices = [...indices].sort((a, b) => a.start - b.start);
-    const segments: React.ReactNode[] = [];
+    const segments: (string | JSX.Element)[] = [];
     let lastIndex = 0;
 
     sortedIndices.forEach((highlight, i) => {
       // Add text before highlight
       if (highlight.start > lastIndex) {
-        segments.push(
-          <span key={`text-${i}`}>
-            {text.slice(lastIndex, highlight.start)}
-          </span>
-        );
+        segments.push(text.slice(lastIndex, highlight.start));
       }
 
       // Add highlighted text
@@ -66,10 +60,10 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] })
           className={`highlight ${getHighlightClass(highlight.type)}`}
           onMouseEnter={(e) => handleMouseEnter(i, e)}
           onMouseLeave={handleMouseLeave}
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: i * 0.1, duration: 0.3 }}
-          whileHover={{ scale: 1.05 }}
+          transition={{ delay: i * 0.05, duration: 0.2 }}
+          whileHover={{ scale: 1.02 }}
         >
           {text.slice(highlight.start, highlight.end)}
         </motion.span>
@@ -80,11 +74,7 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] })
 
     // Add remaining text
     if (lastIndex < text.length) {
-      segments.push(
-        <span key="text-end">
-          {text.slice(lastIndex)}
-        </span>
-      );
+      segments.push(text.slice(lastIndex));
     }
 
     return segments;
@@ -107,7 +97,7 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] })
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
           >
             <strong>Type:</strong> {indices[hoveredIndex]?.type}<br/>
             {indices[hoveredIndex]?.piiType && (
@@ -116,7 +106,7 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({ text, indices = [] })
               </>
             )}
             <strong>Severity:</strong> {indices[hoveredIndex]?.severity_score}/10<br/>
-            <strong>Explanation:</strong> {indices[hoveredIndex]?.explanation}
+            <strong>Details:</strong> {indices[hoveredIndex]?.explanation}
           </motion.div>
         )}
       </AnimatePresence>
