@@ -1,14 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThemeProvider } from './contexts/ThemeContext';
 import SplashScreen from './components/SplashScreen';
 import PromptWorkspace from './components/PromptWorkspace';
-import ThemeToggle from './components/ThemeToggle';
 import './App.css';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('splash');
+
+  useEffect(() => {
+    // Force dark theme
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   const enterSentinel = () => {
     setCurrentView('workspace');
@@ -19,9 +22,7 @@ export default function App() {
   };
 
   return (
-    <ThemeProvider>
-      <div className="app">
-        <ThemeToggle />
+    <div className="app">
         <AnimatePresence mode="wait">
           {currentView === 'splash' && (
             <motion.div
@@ -47,7 +48,6 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </ThemeProvider>
+    </div>
   );
 }

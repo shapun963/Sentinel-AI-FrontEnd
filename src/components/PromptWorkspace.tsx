@@ -12,6 +12,7 @@ import {
 } from '../api';
 import AnalysisReport from './AnalysisReport';
 import HighlightedText from './HighlightedText';
+import TypewriterText from './TypewriterText';
 
 interface PromptWorkspaceProps {
   onBack: () => void;
@@ -29,6 +30,8 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
   const [generatedContent, setGeneratedContent] = useState<GeneratedContentResponse | null>(null);
   const [postAnalysis, setPostAnalysis] = useState<PostProcessResponse | null>(null);
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('input');
+  const [showTypewriter, setShowTypewriter] = useState(false);
+  const [typewriterComplete, setTypewriterComplete] = useState(false);
 
   useEffect(() => {
     loadAgents();
@@ -73,9 +76,15 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
       setGeneratedContent(content);
 
       setLoadingText('Analyzing generated content...');
+      setShowTypewriter(true);
+      setTypewriterComplete(false);
       const postAnalysisResult = await postProcessText(content.generated_text);
       setPostAnalysis(postAnalysisResult);
-      setCurrentStep('post-analysis');
+
+      setTimeout(() => {
+        setCurrentStep('post-analysis');
+        setLoading(false);
+      }, 2000); // Wait 2 seconds for typewriter effect
     } catch (error) {
       console.error('Generation or post-processing failed:', error);
     } finally {
@@ -96,6 +105,8 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
     setPreAnalysis(null);
     setGeneratedContent(null);
     setPostAnalysis(null);
+    setShowTypewriter(false);
+    setTypewriterComplete(false);
   };
 
   const getStepStatus = (step: WorkflowStep): 'completed' | 'current' | 'pending' => {
@@ -311,10 +322,19 @@ const PromptWorkspace: React.FC<PromptWorkspaceProps> = ({ onBack }) => {
           >
             <div className="generated-content">
               <h3 className="generated-title">Generated Content</h3>
-              <HighlightedText 
-                text={generatedContent.generated_text}
-                indices={postAnalysis.pii.indices}
-              />
+              {showTypewriter ? (
+                <TypewriterText
+                  text={generatedContent.generated_text}
+                  speed={20}
+                  onComplete={() => setTypewriterComplete(true)}
+                  className="generated-text-content"
+                />
+              ) : (
+                <HighlightedText
+                  text={generatedContent.generated_text}
+                  showBias={true}
+                />
+              )}
             </div>
 
             <AnalysisReport 
