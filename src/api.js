@@ -116,7 +116,7 @@ export const getAgents = async () => {
   if (USE_MOCK_DATA) {
     return new Promise(resolve => setTimeout(() => resolve(mockAgents), 800));
   }
-  
+
   const response = await fetch(`${AGENT_SERVER_URL}/agents`);
   return response.json();
 };
@@ -125,11 +125,11 @@ export const preProcessText = async (text) => {
   if (USE_MOCK_DATA) {
     return new Promise(resolve => setTimeout(() => resolve(mockPreProcessResponse), 1500));
   }
-  
+
   const response = await fetch(`${SHIELD_SERVER_URL}/shield/pre-process`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text })
+    body: JSON.stringify({ text: text })
   });
   return response.json();
 };
@@ -138,7 +138,7 @@ export const generateContent = async (agentId, prompt) => {
   if (USE_MOCK_DATA) {
     return new Promise(resolve => setTimeout(() => resolve(mockGeneratedContent), 2500));
   }
-  
+
   const response = await fetch(`${AGENT_SERVER_URL}/agents/generate/${agentId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -151,7 +151,7 @@ export const postProcessText = async (text) => {
   if (USE_MOCK_DATA) {
     return new Promise(resolve => setTimeout(() => resolve(mockPostProcessResponse), 1200));
   }
-  
+
   const response = await fetch(`${SHIELD_SERVER_URL}/shield/post-process`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
