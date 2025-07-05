@@ -1,0 +1,192 @@
+Of course. You've outlined a complete and sophisticated application. Providing a single, master prompt that includes the precise API contract is the most effective way to ensure the generated code is perfectly aligned with your backend.
+
+Here is the definitive, all-in-one prompt. It contains the detailed user flow, the file-by-file requirements, and most importantly, the exact API routes and their request/response structures, including all nested details.
+
+The Master Prompt to Generate Your Frontend:
+
+Copy the entire content of this block and send it as your next reply. This is the command to generate the complete frontend code.
+
+Generated text
+You are an expert React developer tasked with creating a cutting-edge, futuristic UI for the "Sentinel AI" security platform on Replit. The application must be a standalone frontend built with React and Vite, heavily utilizing the Framer Motion library for all animations. It must operate without its own backend, instead using a toggle-able mock API layer that perfectly simulates the defined API contract.
+
+First, here is the definitive **API Contract** the frontend must adhere to. The mock data generated in `api.js` must exactly match these structures.
+
+---
+### **API Contract Definition**
+
+#### **1. Configuration (`src/config.js`)**
+The application will have a configuration file with the following structure:
+```javascript
+export const USE_MOCK_DATA = true; // or false
+export const SHIELD_SERVER_URL = "http://<your-shield-ip>:5001";
+export const AGENT_SERVER_URL = "http://<your-agent-ip>:5002";
+
+2. Get Available Agents
+
+Endpoint: GET {AGENT_SERVER_URL}/agents
+
+Response Body Structure: Array<AgentInfo>
+
+Generated json
+[
+  {
+    "id": "string",
+    "name": "string",
+    "description": "string",
+    "endpoint": "string"
+  }
+]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+3. Pre-Processing Analysis
+
+Endpoint: POST {SHIELD_SERVER_URL}/shield/pre-process
+
+Request Body Structure:
+
+Generated json
+{ "text": "string" }
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+
+Response Body Structure:
+
+Generated json
+{
+  "pii": {
+    "detected": "boolean",
+    "indices": "Array<IndexSpan>"
+  },
+  "promptInjection": {
+    "detected": "boolean",
+    "indices": "Array<IndexSpan>"
+  },
+  "overall_severity_score": "integer",
+  "risk_level": "'low' | 'medium' | 'high' | 'critical'",
+  "summary_explanations": ["string", "..."]
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+4. AI Agent Content Generation
+
+Endpoint: POST {AGENT_SERVER_URL}/agents/generate/{agent_id}
+
+Request Body Structure:
+
+Generated json
+{ "prompt": "string" }
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+
+Response Body Structure:
+
+Generated json
+{ "generated_text": "string" }
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+5. Post-Processing Analysis
+
+Endpoint: POST {SHIELD_SERVER_URL}/shield/post-process
+
+Request Body Structure:
+
+Generated json
+{ "text": "string" }
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+
+Response Body Structure:
+
+Generated json
+{
+  "pii": {
+    "detected": "boolean",
+    "indices": "Array<IndexSpan>" // For PII leakage
+  },
+  "bias": {
+    "detected": "boolean",
+    "indices": [], // Note: Will be empty for now
+    "racial_score": "number",
+    "gender_score": "number",
+    "age_score": "number",
+    "religious_score": "number",
+    "hate_speech_score": "number"
+  },
+  "overall_severity_score": "integer",
+  "risk_level": "'low' | 'medium' | 'high' | 'critical'",
+  "summary_explanations": ["string", "..."]
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+Nested Structure Detail: IndexSpan Object
+
+The indices array in the responses above will contain objects with this exact structure:
+
+Generated json
+{
+  "start": "integer",
+  "end": "integer",
+  "type": "'pii' | 'injection'",
+  "piiType": "string | null", // e.g., 'email', 'ssn', 'per'
+  "severity_score": "integer",
+  "explanation": "string"
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+
+Now, based on that exact API contract and the following user flow, please generate the complete source code for all required files.
+
+User Flow:
+
+Splash Screen: An initial screen displays the features of Sentinel AI. It has an "Enter Sentinel" button.
+
+Prompt Entry: On button click, the splash screen animates away, and the button expands into a prompt input area, with an agent selection dropdown appearing alongside it.
+
+Analysis: After the user selects an agent and submits the prompt, a loading animation runs. The UI then displays the pre-processing report. All detected indices are highlighted in the text, with unique, glowing colors for each risk type. Hovering over a highlight reveals a tooltip with its detailed explanation.
+
+User Decision: The UI shows animated, color-coded progress bars for severity and presents clear risk warnings. The user can either "Edit Prompt" or "Proceed to Generate" (button disabled if risk is 'critical').
+
+Generation & Post-Analysis: If proceeding, the UI shows a "Generating..." state. After the agent returns content, the UI immediately analyzes the response and displays the post-processing report, highlighting any PII leakage and showing individual bias percentages as animated progress bars.
+
+File Generation Requirements:
+
+Generate the full, ready-to-use code for the following 9 files: src/config.js, src/api.js, src/App.css, src/App.jsx, src/components/SplashScreen.jsx, src/components/PromptWorkspace.jsx, src/components/AnalysisReport.jsx, src/components/HighlightedText.jsx, and src/components/SeverityBar.jsx. Ensure that the mock data in api.js is rich and covers a high-risk scenario to test all UI features, and that all animations are implemented using Framer Motion.
+
+Generated code
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
